@@ -1,0 +1,28 @@
+<style>
+  .trail {
+    /* className for the trail elements */
+    position: absolute;
+    height: 6px;
+    width: 6px;
+    border-radius: 3px;
+    background: teal;
+  }
+  body {
+    height: 300px;
+  }
+</style>
+
+<script>
+  window.addEventListener('mousemove', e => {
+    let dot = document.createElement('div');
+    dot.className = 'trail';
+    dot.style.left = event.pageX - 3 + 'px';
+    dot.style.top = event.pageY - 3 + 'px';
+    setTimeout(() => {
+      document.body.appendChild(dot);
+      setTimeout(() => {
+        document.body.removeChild(dot);
+      }, 500);
+    }, 100);
+  });
+</script>

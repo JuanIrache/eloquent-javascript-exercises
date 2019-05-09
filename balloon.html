@@ -1,0 +1,26 @@
+<p>🎈</p>
+
+<script>
+  let balloon = document.querySelector('p');
+  let size = 10;
+  balloon.style.fontSize = size+'px';
+  function setSize(s) {
+    size = s;
+      if (size > 40) {
+      	balloon.textContent = '💥';
+        document.body.removeEventListener('keydown',blow);
+      }
+    balloon.style.fontSize = size+'px';
+  }
+  function blow(e) {
+      if (e.key === 'ArrowUp') {
+        	setSize(size*1.1);
+            e.preventDefault();
+			
+      } else if (e.key === 'ArrowDown') {
+        	setSize(size*.09);
+            e.preventDefault();
+      }
+}
+	document.body.addEventListener('keydown', blow);
+</script>
