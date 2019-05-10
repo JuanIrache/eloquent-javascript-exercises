@@ -1,0 +1,65 @@
+<canvas width="800" height="200"></canvas>
+<script>
+  let cx = document.querySelector('canvas').getContext('2d');
+  function trapezoid(xPos, yPos, w, h, ind) {
+    cx.beginPath();
+    cx.moveTo(xPos + w * (ind * 0.5), yPos);
+    cx.lineTo(xPos + w - w * (ind * 0.5), yPos);
+    cx.lineTo(xPos + w, yPos + h);
+    cx.lineTo(xPos, yPos + h);
+    cx.closePath();
+  }
+  function diamond(xPos, yPos, size) {
+    cx.save();
+    cx.translate(xPos, yPos);
+    cx.translate(size / 2, size / 2);
+    cx.rotate(Math.PI * 0.25);
+    cx.translate(-size / 2, -size / 2);
+    cx.fillStyle = 'red';
+    cx.fillRect(0, 0, size, size);
+    cx.restore();
+  }
+  function zigzag(xPos, yPos, w, h, iter) {
+    cx.beginPath();
+    cx.moveTo(xPos, yPos);
+    let segment = h / (iter * 2);
+    for (let i = 1; i <= iter; i++) {
+      cx.lineTo(xPos + w, yPos + segment * i - segment * 0.5);
+      cx.lineTo(xPos, yPos + segment * i);
+    }
+  }
+
+  function spiral(xPos, yPos, s) {
+    cx.save();
+    cx.translate(xPos, yPos);
+    cx.beginPath();
+    for (let i = 0; i < 1000; i++) {
+      cx.lineTo((Math.sin(i * s) * i) / 10, (Math.cos(i * s) * i) / 10);
+    }
+    cx.restore();
+  }
+
+  function star(xPos, yPos, s, size) {
+    cx.save();
+    cx.translate(xPos, yPos);
+    cx.beginPath();
+    for (let i = 0; i < s; i++) {
+      cx.lineTo(size * Math.sin((Math.PI * 2 * i) / s), size * Math.cos((Math.PI * 2 * i) / s));
+      cx.quadraticCurveTo(0, 0, size * Math.sin((Math.PI * 2 * (i + 1)) / s), size * Math.cos((Math.PI * 2 * (i + 1)) / s));
+      cx.lineTo(0, 0);
+    }
+    cx.closePath();
+    cx.restore();
+  }
+
+  trapezoid(5, 5, 100, 50, 0.4);
+  cx.stroke();
+  diamond(150, 20, 70);
+  zigzag(300, 5, 100, 200, 6);
+  cx.stroke();
+  spiral(500, 100, 0.05);
+  cx.stroke();
+  star(700, 100, 7, 100);
+  cx.fillStyle = 'orange';
+  cx.fill();
+</script>

@@ -1,0 +1,57 @@
+<canvas width="400" height="400"></canvas>
+<script>
+  let cx = document.querySelector('canvas').getContext('2d');
+
+  let lastTime = null;
+  function frame(time) {
+    if (lastTime != null) {
+      updateAnimation(Math.min(100, time - lastTime) / 1000);
+    }
+    lastTime = time;
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  class Ball {
+    constructor(x, y, r, vx, vy) {
+      this.x = x;
+      this.y = y;
+      this.r = r;
+      this.vx = vx;
+      this.vy = vy;
+    }
+    update(step) {
+      this.x += this.vx * step;
+      this.y += this.vy * step;
+      this.vy += 8;
+    }
+    collide(bx1, by1, bx2, by2) {
+      //boundaries
+      if (this.x - this.r < bx1 || this.x + this.r > bx2) this.vx *= -1;
+      if (this.y - this.r < by1 || this.y + this.r > by2) this.vy *= -1;
+    }
+  }
+
+  let ball = new Ball(70, 70, 10, Math.random() * 300, Math.random() * 200);
+  let boundaries = [5, 5, 390, 390];
+
+  function updateAnimation(step) {
+    cx.fillStyle = 'white';
+    cx.clearRect(...boundaries);
+    cx.lineWidth = 5;
+    cx.strokeStyle = 'blue';
+    cx.strokeRect(...boundaries);
+    //draw ball
+    cx.save();
+    cx.fillStyle = 'green';
+
+    cx.moveTo(ball.x, ball.y);
+    cx.beginPath();
+    cx.arc(ball.x, ball.y, ball.r, 0, 2 * Math.PI);
+    cx.fill();
+
+    ball.update(step);
+    ball.collide(...boundaries);
+    cx.restore();
+  }
+</script>
