@@ -1,4 +1,4 @@
-const randomPick = require('./randomPick');
+const randomPick = require('./10_randomPick');
 
 module.exports = function(roadGraph) {
   class VillageState {

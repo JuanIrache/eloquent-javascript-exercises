@@ -1,5 +1,5 @@
-const randomPick = require('./randomPick');
-const findRoute = require('./findRoute');
+const randomPick = require('./10_randomPick');
+const findRoute = require('./7_findRoute');
 
 module.exports = function({ roadGraph, mailRoute }) {
   function randomRobot(state) {

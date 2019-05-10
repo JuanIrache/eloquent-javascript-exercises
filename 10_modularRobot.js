@@ -33,7 +33,7 @@ const mailRoute = [
 
 const buildGraph = require('./buildGraph');
 const roadGraph = buildGraph(roads);
-const VillageState = require('./VillageState')(roadGraph);
+const VillageState = require('./10_VillageState')(roadGraph);
 const runRobot = require('./runRobot');
 const { randomRobot, routeRobot, goalOrientedRobot, improvedRobot, lazyRobot, myLazyRobot } = require('./robotTypes.js')({
   roadGraph,

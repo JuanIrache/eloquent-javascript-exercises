@@ -1,4 +1,4 @@
-const SCRIPTS = require('./scripts');
+const SCRIPTS = require('./5_scripts');
 
 function characterScript(code) {
   for (let script of SCRIPTS) {

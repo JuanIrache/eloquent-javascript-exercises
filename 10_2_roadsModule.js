@@ -1,4 +1,4 @@
-const buildGraph = require('./graph');
+const buildGraph = require('./10_graph');
 
 const roads = [
   "Alice's House-Bob's House",
