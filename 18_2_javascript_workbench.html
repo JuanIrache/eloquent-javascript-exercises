@@ -1,0 +1,19 @@
+<textarea id="code">return "hi";</textarea>
+<button id="button">Run</button>
+<pre id="output"></pre>
+
+<script>
+  
+  document.querySelector('#button').addEventListener('click',() => {
+    try {
+    let code = document.querySelector('#code').value;
+  	let func = Function('',code);
+	let result = func().toString();
+    
+        document.querySelector('#output').textContent = result;
+} catch (e) {
+        document.querySelector('#output').textContent = e;
+
+    }
+  })
+</script>

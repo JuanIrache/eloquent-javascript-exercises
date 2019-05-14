@@ -1,0 +1,80 @@
+<div id="grid"></div>
+<button id="next">Next generation</button>
+
+<script>
+  class Grid {
+    constructor(width, height) {
+      this.width = width;
+      this.height = height;
+      this.cells = [];
+      for (let i = 0; i < width * height; i++) this.cells.push(false);
+    }
+    randomize() {
+      this.cells = this.cells.map(cell => (Math.random() < 0.5 ? true : false));
+    }
+    replace(cells) {
+      this.cells = cells;
+    }
+    update() {
+      let result = new Grid(this.width, this.height);
+      for (let y = 0; y < this.height; y++) {
+        for (let x = 0; x < this.width; x++) {
+          let cell = this.cells[y * this.width + x];
+          const neighbours = [];
+          for (let yy = Math.max(y - 1, 0); yy < Math.min(y + 2, this.height); yy++) {
+            for (let xx = Math.max(x - 1, 0); xx < Math.min(x + 2, this.width); xx++) {
+              if (xx !== x || yy !== y) neighbours.push(this.cells[yy * this.width + xx]);
+            }
+          }
+          const livingNei = neighbours.reduce((acc, curr) => (curr ? acc + 1 : acc), 0);
+          if (cell) {
+            if (livingNei > 3) cell = false;
+            if (livingNei < 2) cell = false;
+          } else if (livingNei === 3) cell = true;
+          result.cells[y * this.width + x] = cell;
+        }
+      }
+      return result;
+    }
+  }
+
+  function getCells() {
+    return (cells = Array.from(document.querySelectorAll('.cell')));
+  }
+
+  const height = 20;
+  const width = 60;
+  let grid = new Grid(width, height);
+  grid.randomize();
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let check = document.createElement('input');
+      check.type = 'checkbox';
+      check.className = 'cell';
+      document.querySelector('#grid').appendChild(check);
+    }
+    document.querySelector('#grid').appendChild(document.createElement('br'));
+  }
+
+  function updateDisplay() {
+    let cells = getCells();
+    for (let i = 0; i < cells.length; i++) {
+      cells[i].checked = grid.cells[i];
+    }
+  }
+
+  updateDisplay();
+
+  document.querySelector('#next').addEventListener('click', e => {
+    let cells = getCells().map(input => input.checked);
+    grid.replace(cells);
+    grid = grid.update();
+
+    updateDisplay();
+  });
+</script>
+<style>
+  .cell {
+    margin: 0;
+  }
+</style>
