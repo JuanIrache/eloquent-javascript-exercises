@@ -4,6 +4,7 @@
     let drawn = [];
     const diffX = pos.x - start.x;
     const diffY = pos.y - start.y;
+    drawn.push({ y: pos.y, x: pos.x, color });
     if (Math.abs(diffX) > Math.abs(diffY)) {
       for (let x = 0; x !== diffX; x += diffX / Math.abs(diffX)) {
         const proportion = x / diffX;
