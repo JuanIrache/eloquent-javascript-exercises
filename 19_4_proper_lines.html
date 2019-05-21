@@ -1,46 +1,40 @@
 <div></div>
 <script>
+  function drawLine(pos, start, color) {
+    let drawn = [];
+    const diffX = pos.x - start.x;
+    const diffY = pos.y - start.y;
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      for (let x = 0; x !== diffX; x += diffX / Math.abs(diffX)) {
+        const proportion = x / diffX;
+        const y = Math.round(diffY * proportion);
+        drawn.push({ x: start.x + x, y: start.y + y, color });
+      }
+    } else {
+      for (let y = 0; y !== diffY; y += diffY / Math.abs(diffY)) {
+        const proportion = y / diffY;
+        const x = Math.round(diffX * proportion);
+        drawn.push({ y: start.y + y, x: start.x + x, color });
+      }
+    }
+
+    return drawn;
+  }
+  function line(start, state, dispatch) {
+    return end => {
+      line = drawLine(start, end, state.color);
+      dispatch({ picture: state.picture.draw(line) });
+    };
+  }
   // The old draw tool. Rewrite this.
   function draw(pos, state, dispatch) {
     function drawPixel({ x, y }, state) {
-      let drawn = { x, y, color: state.color };
-      dispatch({ picture: state.picture.draw([drawn]) });
+      let drawn = drawLine(pos, { x, y }, state.color);
+      pos = { x, y };
+      dispatch({ picture: state.picture.draw(drawn) });
     }
     drawPixel(pos, state);
     return drawPixel;
-  }
-
-  function line(start, state, dispatch) {
-    function drawLine(pos) {
-      const distance = function(x1, y1, x2, y2) {
-        const c1 = x2 - x1;
-        const c2 = y2 - y1;
-        return Math.sqrt(Math.pow(c1, 2) + Math.pow(c2, 2));
-      };
-      let drawn = [];
-      let current = { x: start.x, y: start.y };
-      while (current.x !== pos.x || current.y !== pos.y) {
-        const startX = Math.max(0, current.x - 1);
-        const startY = Math.max(0, current.y - 1);
-        const endX = Math.min(current.x + 1, state.picture.width - 1);
-        const endY = Math.min(current.y + 1, state.picture.height - 1);
-        let best;
-        let other = [];
-        for (let y = startY; y <= endY; y++) {
-          for (let x = startX; x <= endX; x++) {
-            if (!best || distance(x, y, pos.x, pos.y) < best.dist) best = { x, y, dist: distance(x, y, pos.x, pos.y) };
-            else other.push({ x, y });
-          }
-        }
-        other.forEach(o => drawn.push({ x: o.x, y: o.y, color: 'red' }));
-        drawn.push({ x: best.x, y: best.y, color: state.color });
-        current = { x: best.x, y: best.y };
-      }
-
-      dispatch({ picture: state.picture.draw(drawn) });
-    }
-    drawLine(start);
-    return drawLine;
   }
 
   let dom = startPixelEditor({
