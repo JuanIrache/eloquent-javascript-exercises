@@ -1,0 +1,32 @@
+<div></div>
+<script>
+  // Change this method
+  PictureCanvas.prototype.syncState = function(picture) {
+    if (this.picture == picture) return;
+    const prevPicture = this.picture;
+    this.picture = picture;
+    drawPicture(this.picture, this.dom, scale, prevPicture);
+  };
+
+  // You may want to use or change this as well
+  function drawPicture(picture, canvas, scale, prevPicture) {
+    if (!prevPicture || prevPicture.width != picture.width || prevPicture.height != picture.height) {
+      canvas.width = picture.width * scale;
+      canvas.height = picture.height * scale;
+      prevPicture = null;
+    }
+
+    let cx = canvas.getContext('2d');
+
+    for (let y = 0; y < picture.height; y++) {
+      for (let x = 0; x < picture.width; x++) {
+        if (!prevPicture || picture.pixel(x, y) !== prevPicture.pixel(x, y)) {
+          cx.fillStyle = picture.pixel(x, y);
+          cx.fillRect(x * scale, y * scale, scale, scale);
+        }
+      }
+    }
+  }
+
+  document.querySelector('div').appendChild(startPixelEditor({}));
+</script>

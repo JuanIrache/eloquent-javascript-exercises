@@ -1,0 +1,32 @@
+<div></div>
+<script>
+  function circle(center, state, dispatch) {
+    function drawCircle(pos) {
+      const distance = function(x1, y1, x2, y2) {
+        const c1 = x2 - x1;
+        const c2 = y2 - y1;
+        return Math.sqrt(Math.pow(c1, 2) + Math.pow(c2, 2));
+      };
+      const maxDist = distance(center.x, center.y, pos.x, pos.y);
+      let drawn = [];
+      const startX = Math.max(0, center.x - Math.round(maxDist));
+      const startY = Math.max(0, center.y - Math.round(maxDist));
+      const endX = Math.min(center.x + Math.round(maxDist), state.picture.width - 1);
+      const endY = Math.min(center.y + Math.round(maxDist), state.picture.height - 1);
+      for (let y = startY; y <= endY; y++) {
+        for (let x = startX; x <= endX; x++) {
+          if (distance(center.x, center.y, x, y) <= maxDist) drawn.push({ x, y, color: state.color });
+        }
+      }
+
+      dispatch({ picture: state.picture.draw(drawn) });
+    }
+    drawCircle(center);
+    return drawCircle;
+  }
+
+  let dom = startPixelEditor({
+    tools: Object.assign({}, baseTools, { circle })
+  });
+  document.querySelector('div').appendChild(dom);
+</script>
