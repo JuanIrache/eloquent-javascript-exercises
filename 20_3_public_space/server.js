@@ -1,3 +1,5 @@
+/////////// Provided code
+
 const { createServer } = require('http');
 
 const methods = Object.create(null);
@@ -10,6 +12,8 @@ createServer((request, response) => {
       return { body: String(error), status: 500 };
     })
     .then(({ body, status = 200, type = 'text/plain' }) => {
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      response.setHeader('Access-Control-Allow-Methods', 'POST, PUT, GET, OPTIONS, DELETE');
       response.writeHead(status, { 'Content-Type': type });
       if (body && body.pipe) body.pipe(response);
       else response.end(body);
@@ -103,4 +107,8 @@ methods.MKCOL = async function(request) {
   } catch (error) {
     throw error;
   }
+};
+
+methods.OPTIONS = async function(request) {
+  return { status: 204 };
 };
