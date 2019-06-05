@@ -1,5 +1,9 @@
 //Start server and access site from http://localhost:8000/index.html
 
+//21_1 Disk persistence
+const { readFileSync, writeFile } = require('fs');
+///////////////////////
+
 var { createServer } = require('http');
 var Router = require('./router');
 var ecstatic = require('ecstatic');
@@ -142,6 +146,20 @@ SkillShareServer.prototype.updated = function() {
   let response = this.talkResponse();
   this.waiting.forEach(resolve => resolve(response));
   this.waiting = [];
+  //21_1 Disk persistence
+  const data = JSON.stringify(this.talks);
+  writeFile(`${__dirname}/state.json`, data, err => {
+    if (err) console.log(err);
+    else console.log('Data saved');
+  });
+  ///////////////////////
 };
 
-new SkillShareServer(Object.create(null)).start(8000);
+//21_1 Disk persistence
+try {
+  const data = readFileSync(`${__dirname}/state.json`);
+  new SkillShareServer(Object.assign(Object.create(null), JSON.parse(data))).start(8000);
+} catch (error) {
+  new SkillShareServer(Object.create(null)).start(8000);
+}
+///////////////////////
