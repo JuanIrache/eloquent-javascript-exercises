@@ -1,3 +1,6 @@
+//My solution is completely different to that of the book, it looks hacky but I find it much simpler.
+//It just remembers the content of the inputs and copies it to the new stat
+
 function handleAction(state, action) {
   if (action.type == 'setUser') {
     localStorage.setItem('userName', action.user);
@@ -71,7 +74,9 @@ function elt(type, props, ...children) {
 function renderTalk(talk, dispatch) {
   return elt(
     'section',
-    { className: 'talk' },
+    //21_2 Comment field resets
+    { className: 'talk', id: `${talk.title.replace(/[^a-zA-Z0-9]/g, '')}-${talk.presenter.replace(/[^a-zA-Z0-9]/g, '')}` },
+    ///////////////////////////
     elt(
       'h2',
       null,
@@ -172,9 +177,22 @@ var SkillShareApp = class SkillShareApp {
 function runApp() {
   let user = localStorage.getItem('userName') || 'Anon';
   let state, app;
-  function dispatch(action) {
+  //21_2 Comment field resets
+  function dispatch(action, oldTalks) {
     state = handleAction(state, action);
     app.syncState(state);
+    if (oldTalks) {
+      for (let i = 0; i < oldTalks.length; i++) {
+        const id = oldTalks[i].id;
+        let newTalk = document.querySelector(`#${id}`);
+        if (newTalk) {
+          const input = oldTalks[i].querySelector('input');
+          let newInput = newTalk.querySelector('input');
+          newInput.value = input.value;
+        }
+      }
+    }
+    ///////////////////////////
   }
 
   pollTalks(talks => {
@@ -183,7 +201,10 @@ function runApp() {
       app = new SkillShareApp(state, dispatch);
       document.body.appendChild(app.dom);
     } else {
-      dispatch({ type: 'setTalks', talks });
+      //21_2 Comment field resets
+      const oldTalks = document.querySelectorAll('.talk');
+      dispatch({ type: 'setTalks', talks }, oldTalks);
+      ///////////////////////////
     }
   }).catch(reportError);
 }
