@@ -1,9 +1,11 @@
-var {createServer} = require("http");
-var Router = require("./router");
-var ecstatic = require("ecstatic");
+//Start server and access site from http://localhost:8000/index.html
+
+var { createServer } = require('http');
+var Router = require('./router');
+var ecstatic = require('ecstatic');
 
 var router = new Router();
-var defaultHeaders = {"Content-Type": "text/plain"};
+var defaultHeaders = { 'Content-Type': 'text/plain' };
 
 var SkillShareServer = class SkillShareServer {
   constructor(talks) {
@@ -11,19 +13,19 @@ var SkillShareServer = class SkillShareServer {
     this.version = 0;
     this.waiting = [];
 
-    let fileServer = ecstatic({root: "./public"});
+    let fileServer = ecstatic({ root: './public' });
     this.server = createServer((request, response) => {
       let resolved = router.resolve(this, request);
       if (resolved) {
-        resolved.catch(error => {
-          if (error.status != null) return error;
-          return {body: String(error), status: 500};
-        }).then(({body,
-                  status = 200,
-                  headers = defaultHeaders}) => {
-          response.writeHead(status, headers);
-          response.end(body);
-        });
+        resolved
+          .catch(error => {
+            if (error.status != null) return error;
+            return { body: String(error), status: 500 };
+          })
+          .then(({ body, status = 200, headers = defaultHeaders }) => {
+            response.writeHead(status, headers);
+            response.end(body);
+          });
       } else {
         fileServer(request, response);
       }
@@ -35,73 +37,69 @@ var SkillShareServer = class SkillShareServer {
   stop() {
     this.server.close();
   }
-}
+};
 
 const talkPath = /^\/talks\/([^\/]+)$/;
 
-router.add("GET", talkPath, async (server, title) => {
+router.add('GET', talkPath, async (server, title) => {
   if (title in server.talks) {
-    return {body: JSON.stringify(server.talks[title]),
-            headers: {"Content-Type": "application/json"}};
+    return { body: JSON.stringify(server.talks[title]), headers: { 'Content-Type': 'application/json' } };
   } else {
-    return {status: 404, body: `No talk '${title}' found`};
+    return { status: 404, body: `No talk '${title}' found` };
   }
 });
 
-router.add("DELETE", talkPath, async (server, title) => {
+router.add('DELETE', talkPath, async (server, title) => {
   if (title in server.talks) {
     delete server.talks[title];
     server.updated();
   }
-  return {status: 204};
+  return { status: 204 };
 });
 
 function readStream(stream) {
   return new Promise((resolve, reject) => {
-    let data = "";
-    stream.on("error", reject);
-    stream.on("data", chunk => data += chunk.toString());
-    stream.on("end", () => resolve(data));
+    let data = '';
+    stream.on('error', reject);
+    stream.on('data', chunk => (data += chunk.toString()));
+    stream.on('end', () => resolve(data));
   });
 }
 
-router.add("PUT", talkPath,
-           async (server, title, request) => {
+router.add('PUT', talkPath, async (server, title, request) => {
   let requestBody = await readStream(request);
   let talk;
-  try { talk = JSON.parse(requestBody); }
-  catch (_) { return {status: 400, body: "Invalid JSON"}; }
-
-  if (!talk ||
-      typeof talk.presenter != "string" ||
-      typeof talk.summary != "string") {
-    return {status: 400, body: "Bad talk data"};
+  try {
+    talk = JSON.parse(requestBody);
+  } catch (_) {
+    return { status: 400, body: 'Invalid JSON' };
   }
-  server.talks[title] = {title,
-                         presenter: talk.presenter,
-                         summary: talk.summary,
-                         comments: []};
+
+  if (!talk || typeof talk.presenter != 'string' || typeof talk.summary != 'string') {
+    return { status: 400, body: 'Bad talk data' };
+  }
+  server.talks[title] = { title, presenter: talk.presenter, summary: talk.summary, comments: [] };
   server.updated();
-  return {status: 204};
+  return { status: 204 };
 });
 
-router.add("POST", /^\/talks\/([^\/]+)\/comments$/,
-           async (server, title, request) => {
+router.add('POST', /^\/talks\/([^\/]+)\/comments$/, async (server, title, request) => {
   let requestBody = await readStream(request);
   let comment;
-  try { comment = JSON.parse(requestBody); }
-  catch (_) { return {status: 400, body: "Invalid JSON"}; }
+  try {
+    comment = JSON.parse(requestBody);
+  } catch (_) {
+    return { status: 400, body: 'Invalid JSON' };
+  }
 
-  if (!comment ||
-      typeof comment.author != "string" ||
-      typeof comment.message != "string") {
-    return {status: 400, body: "Bad comment data"};
+  if (!comment || typeof comment.author != 'string' || typeof comment.message != 'string') {
+    return { status: 400, body: 'Bad comment data' };
   } else if (title in server.talks) {
     server.talks[title].comments.push(comment);
     server.updated();
-    return {status: 204};
+    return { status: 204 };
   } else {
-    return {status: 404, body: `No talk '${title}' found`};
+    return { status: 404, body: `No talk '${title}' found` };
   }
 });
 
@@ -112,18 +110,17 @@ SkillShareServer.prototype.talkResponse = function() {
   }
   return {
     body: JSON.stringify(talks),
-    headers: {"Content-Type": "application/json",
-              "ETag": `"${this.version}"`}
+    headers: { 'Content-Type': 'application/json', ETag: `"${this.version}"` }
   };
 };
 
-router.add("GET", /^\/talks$/, async (server, request) => {
-  let tag = /"(.*)"/.exec(request.headers["if-none-match"]);
-  let wait = /\bwait=(\d+)/.exec(request.headers["prefer"]);
+router.add('GET', /^\/talks$/, async (server, request) => {
+  let tag = /"(.*)"/.exec(request.headers['if-none-match']);
+  let wait = /\bwait=(\d+)/.exec(request.headers['prefer']);
   if (!tag || tag[1] != server.version) {
     return server.talkResponse();
   } else if (!wait) {
-    return {status: 304};
+    return { status: 304 };
   } else {
     return server.waitForChanges(Number(wait[1]));
   }
@@ -135,7 +132,7 @@ SkillShareServer.prototype.waitForChanges = function(time) {
     setTimeout(() => {
       if (!this.waiting.includes(resolve)) return;
       this.waiting = this.waiting.filter(r => r != resolve);
-      resolve({status: 304});
+      resolve({ status: 304 });
     }, time * 1000);
   });
 };
