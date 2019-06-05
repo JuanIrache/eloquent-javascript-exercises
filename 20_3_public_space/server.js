@@ -1,4 +1,4 @@
-/////////// Provided code
+/////////// Start server.js and use alternative server method to serve frontend
 
 const { createServer } = require('http');
 
