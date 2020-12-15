@@ -4,7 +4,7 @@
           "main": "skillsharing_server.js",
           "description": "Skill-sharing website example from Eloquent JavaScript",
           "dependencies": {
-                    "ecstatic": "^3.1.0"
+                    "ecstatic": "^4.1.4"
           },
           "licenses": [
                     {
